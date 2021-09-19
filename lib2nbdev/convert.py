@@ -136,16 +136,18 @@ def convert_lib():
     **Can only be run once**
     """
     print('Checking for a settings.ini...')
+    cfg_path, cfg_name = '.', 'settings.ini'
     generate_settings()
     print('Gathering files...')
     files = nbglob(extension='.py', config_key='lib_path', recursive=True)
     if len(files) == 0: raise ValueError("No files were found, please ensure that `lib_path` is configured properly in `settings.ini`")
     print(f'{len(files)} modules found in the library')
     num_nbs = len(files)
-    nb_path = Config().path('nbs_path')
+
+    nb_path = Config(cfg_path, cfg_name).path('nbs_path')
     nb_path.mkdir(exist_ok=True)
     print(f'Writing notebooks to {nb_path}...')
-    if nb_path.name == Config().lib_name:
+    if nb_path.name == Config(cfg_path, cfg_name).lib_name:
         nb_path = Path('')
         slash = ''
 
@@ -154,7 +156,7 @@ def convert_lib():
         slash = '/'
 
     for num, file in enumerate(progress_bar(files)):
-        if (file.parent.name != Config().lib_name) and slash is not None:
+        if (file.parent.name != Config(cfg_path, cfg_name).lib_name) and slash is not None:
             parent = file.parent.name
         else:
             parent = None
@@ -213,7 +215,7 @@ def convert_lib():
         else:
             print(f"{file.name} was already converted.")
     generate_doc_foundations()
-    print(f"{Config().lib_name} successfully converted!")
+    print(f"{Config(cfg_path, cfg_name).lib_name} successfully converted!")
     _setup = int(input("Would you like to setup this project to be pip installable and configure a setup.py? (0/1)"))
     if _setup:
         generate_setup()
